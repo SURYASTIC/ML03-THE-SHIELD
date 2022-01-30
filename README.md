@@ -1,74 +1,23 @@
-Make a new python file train.py and paste the code described in following steps:
+##Violence Detection using Machine Learning
 
-1. Imports:
+>Detecting the violence using ML and send notification to the nearest police through APP
 
-from keras.preprocessing.image import img_to_array,load_img
-import numpy as np
-import glob
-import os 
-import cv2
-from keras.layers import Conv3D,ConvLSTM2D,Conv3DTranspose
-from keras.models import Sequential
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-import imutils
-2. Initialize directory path variable and describe a function to process and store video frames:
+### This System is a prototype system detects the violence activity and sends notification through app along with the location of the event. 
+Hawkeye is a real time survillance app that aims to improve the response time of the police force in case of any violence. We have created a machine learning module that uses temporal convolution network to extract features from a CCTV camera. If any violence activity detected, it automatically detects it and send notification to the hawkeye user along with the saved clip of violence with location and camera id.
 
-store_image=[]
-train_path='./train'
-fps=5
-train_videos=os.listdir('train_path')
-train_images_path=train_path+'/frames'
-os.makedirs(train_images_path)
-def store_inarray(image_path):
-    image=load_img(image_path)
-    image=img_to_array(image)
-    image=cv2.resize(image, (227,227), interpolation = cv2.INTER_AREA)
-    gray=0.2989*image[:,:,0]+0.5870*image[:,:,1]+0.1140*image[:,:,2]
-    store_image.append(gray)
-3. Extract frames from video and call store function:
+## Objective
 
-for video in train_videos:
-    os.system( 'ffmpeg -i {}/{} -r 1/{}  {}/frames/%03d.jpg'.format(train_path,video,fps,train_path))
-    images=os.listdir(train_images_path)
-    for image in images:
-        image_path=train_image_path + '/' + image
-        store_inarray(image_path)
-        4. Store the store_image list in a numpy file “training.npy”:
+- Our solution is to  achieve the detection of abnormal activities using video metadata and Machine learning to build a system for real-time alerts, triggering real-time notifications to action when certain objects Or behaviours are detected or when anomalous activity Occurs. In the case of CCTV networks, machine learning-based video content analysis software learns to identify, extract, classify and index objects in video to empower end users to make video data searchable, actionable and quantifiable.
+## Requirements 
+- Python
+- Jupyter notebook
 
-store_image=np.array(store_image)
-a,b,c=store_image.shape
-store_image.resize(b,c,a)
-store_image=(store_image-store_image.mean())/(store_image.std())
-store_image=np.clip(store_image,0,1)
-np.save('training.npy',store_image)
-5. Create spatial autoencoder architecture:
+## How to Run
+- Clone the Repo
+- Download the USCD dataset
+- open the file **hawkeye** in jupyter 
+- Run the file
 
-stae_model=Sequential()
-stae_model.add(Conv3D(filters=128,kernel_size=(11,11,1),strides=(4,4,1),padding='valid',input_shape=(227,227,10,1),activation='tanh'))
-stae_model.add(Conv3D(filters=64,kernel_size=(5,5,1),strides=(2,2,1),padding='valid',activation='tanh'))
-stae_model.add(ConvLSTM2D(filters=64,kernel_size=(3,3),strides=1,padding='same',dropout=0.4,recurrent_dropout=0.3,return_sequences=True))
-stae_model.add(ConvLSTM2D(filters=32,kernel_size=(3,3),strides=1,padding='same',dropout=0.3,return_sequences=True))
-stae_model.add(ConvLSTM2D(filters=64,kernel_size=(3,3),strides=1,return_sequences=True, padding='same',dropout=0.5))
-stae_model.add(Conv3DTranspose(filters=128,kernel_size=(5,5,1),strides=(2,2,1),padding='valid',activation='tanh'))
-stae_model.add(Conv3DTranspose(filters=1,kernel_size=(11,11,1),strides=(4,4,1),padding='valid',activation='tanh'))
-stae_model.compile(optimizer='adam',loss='mean_squared_error',metrics=['accuracy'])
-
-6. Train the autoencoder on the “training.npy” file and save the model with name “saved_model.h5”:
-
-training_data=np.load('training.npy')
-frames=training_data.shape[2]
-frames=frames-frames%10
-training_data=training_data[:,:,:frames]
-training_data=training_data.reshape(-1,227,227,10)
-training_data=np.expand_dims(training_data,axis=4)
-target_data=training_data.copy()
-epochs=5
-batch_size=1
-callback_save = ModelCheckpoint("saved_model.h5", monitor="mean_squared_error", save_best_only=True)
-callback_early_stopping = EarlyStopping(monitor='val_loss', patience=3)
-stae_model.fit(training_data,target_data, batch_size=batch_size, epochs=epochs, callbacks = [callback_save,callback_early_stopping])
-stae_model.save("saved_model.h5")
-Run this script to train and save the autoencoder model.
-
-Now, run hawkeye script and observe the results of video surveillance, it will highlight the abnormal events.
-
+## Interface of the app "HAWKEYE"
+![Uploading image.png…](![image](https://user-images.githubusercontent.com/69417726/151693300-e253f412-1b43-4626-a577-5a3bf3497510.png)
+)
